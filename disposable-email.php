@@ -2,16 +2,17 @@
 /**
  * Plugin Name: Disposable Email Guard
  * Description: Blocks disposable email addresses during WordPress user registration.
- * Version: 1.1.1
+ * Version: 1.1.2
  * Author: Donchev
  * Text Domain: disposable-email-guard
  * Requires at least: 6.0
+ * Tested up to: 7.0
  * Requires PHP: 7.4
  */
 
 defined('ABSPATH') || exit;
 
-define('DISPOSABLE_EMAIL_GUARD_VERSION', '1.1.1');
+define('DISPOSABLE_EMAIL_GUARD_VERSION', '1.1.2');
 define('DISPOSABLE_EMAIL_GUARD_OPTION_NAME', 'disposable_email_guard_settings');
 define('DISPOSABLE_EMAIL_GUARD_PLUGIN_FILE', __FILE__);
 
