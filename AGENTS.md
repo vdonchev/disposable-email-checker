@@ -11,4 +11,5 @@
 
 - Commit messages use `type (context): description message`.
 - When the user says `commit`, decide how many logical commits to create.
+- Each commit must bump the plugin version in both the `Version:` header and `DISPOSABLE_EMAIL_GUARD_VERSION` constant in `disposable-email.php`; choose the SemVer component to bump based on the change: patch for fixes/docs/internal maintenance, minor for backward-compatible features, major for breaking changes.
 - When the user says `push`, commit first, then push.
