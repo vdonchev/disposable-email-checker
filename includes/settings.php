@@ -11,11 +11,18 @@ function disposable_email_guard_register_settings_hooks(): void
 function disposable_email_guard_default_settings(): array
 {
     return [
+        'enabled_on_registration' => '0',
         'api_endpoint' => '',
         'api_key' => '',
         'whitelist_domains' => '',
         'blacklist_domains' => '',
+        'disposable_message' => disposable_email_guard_default_disposable_message(),
     ];
+}
+
+function disposable_email_guard_default_disposable_message(): string
+{
+    return __('Disposable email addresses are not allowed.', 'disposable-email-guard');
 }
 
 function disposable_email_guard_get_settings(): array
@@ -60,6 +67,14 @@ function disposable_email_guard_register_settings(): void
     );
 
     add_settings_field(
+        'enabled_on_registration',
+        __('Enable on Registration', 'disposable-email-guard'),
+        'disposable_email_guard_render_enabled_on_registration_field',
+        'disposable-email-guard',
+        'disposable_email_guard_api_section'
+    );
+
+    add_settings_field(
         'api_endpoint',
         __('API Endpoint URL', 'disposable-email-guard'),
         'disposable_email_guard_render_api_endpoint_field',
@@ -97,6 +112,14 @@ function disposable_email_guard_register_settings(): void
         'disposable-email-guard',
         'disposable_email_guard_domain_section'
     );
+
+    add_settings_field(
+        'disposable_message',
+        __('Disposable Email Message', 'disposable-email-guard'),
+        'disposable_email_guard_render_disposable_message_field',
+        'disposable-email-guard',
+        'disposable_email_guard_domain_section'
+    );
 }
 
 function disposable_email_guard_sanitize_settings($input): array
@@ -105,11 +128,19 @@ function disposable_email_guard_sanitize_settings($input): array
         $input = [];
     }
 
+    $disposable_message = isset($input['disposable_message']) ? sanitize_text_field((string) $input['disposable_message']) : '';
+
+    if ($disposable_message === '') {
+        $disposable_message = disposable_email_guard_default_disposable_message();
+    }
+
     return [
+        'enabled_on_registration' => !empty($input['enabled_on_registration']) ? '1' : '0',
         'api_endpoint' => isset($input['api_endpoint']) ? esc_url_raw((string) $input['api_endpoint']) : '',
         'api_key' => isset($input['api_key']) ? sanitize_text_field((string) $input['api_key']) : '',
         'whitelist_domains' => isset($input['whitelist_domains']) ? disposable_email_guard_normalize_domain_list((string) $input['whitelist_domains']) : '',
         'blacklist_domains' => isset($input['blacklist_domains']) ? disposable_email_guard_normalize_domain_list((string) $input['blacklist_domains']) : '',
+        'disposable_message' => $disposable_message,
     ];
 }
 
@@ -121,6 +152,18 @@ function disposable_email_guard_render_api_section(): void
 function disposable_email_guard_render_domain_section(): void
 {
     echo '<p>' . esc_html__('Enter one domain per line. Whitelisted domains are always allowed. Blacklisted domains are always blocked.', 'disposable-email-guard') . '</p>';
+}
+
+function disposable_email_guard_render_enabled_on_registration_field(): void
+{
+    $settings = disposable_email_guard_get_settings();
+
+    printf(
+        '<label><input type="checkbox" name="%1$s[enabled_on_registration]" value="1" %2$s /> %3$s</label>',
+        esc_attr(DISPOSABLE_EMAIL_GUARD_OPTION_NAME),
+        checked('1', $settings['enabled_on_registration'], false),
+        esc_html__('Block disposable emails during user registration.', 'disposable-email-guard')
+    );
 }
 
 function disposable_email_guard_render_api_endpoint_field(): void
@@ -157,6 +200,19 @@ function disposable_email_guard_render_blacklist_field(): void
     $settings = disposable_email_guard_get_settings();
 
     disposable_email_guard_render_domain_textarea('blacklist_domains', $settings['blacklist_domains']);
+}
+
+function disposable_email_guard_render_disposable_message_field(): void
+{
+    $settings = disposable_email_guard_get_settings();
+
+    printf(
+        '<input type="text" class="regular-text" name="%1$s[disposable_message]" value="%2$s" />',
+        esc_attr(DISPOSABLE_EMAIL_GUARD_OPTION_NAME),
+        esc_attr($settings['disposable_message'])
+    );
+
+    echo '<p class="description">' . esc_html__('Shown when the API identifies an email address as disposable.', 'disposable-email-guard') . '</p>';
 }
 
 function disposable_email_guard_render_domain_textarea(string $field, string $value): void
