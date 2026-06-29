@@ -1,7 +1,11 @@
 # AGENTS.md
 
-- The repository currently has no application source, manifests, build config, tests, or CI files; do not invent setup, lint, test, or build commands until those files exist.
-- `.idea/` is intentionally ignored and should not be committed.
+- This is a small WordPress plugin; the plugin header and bootstrap live in `disposable-email.php`.
+- There are no root manifests, lockfiles, build config, test config, or CI workflows; do not invent setup, lint, test, typecheck, or build commands until those files exist.
+- Runtime target from the plugin header is WordPress 6.0+ and PHP 7.4+, so avoid newer PHP syntax/features.
+- Files under `includes/` are loaded manually from `disposable-email.php`; add new runtime files there only if they are explicitly required by the bootstrap.
+- Registration validation order is whitelist allow, blacklist block, then API check; API failures return `null` and registration is allowed.
+- `.idea/` is intentionally ignored in `.gitignore` and should not be committed.
 
 ## Git Workflow
 
